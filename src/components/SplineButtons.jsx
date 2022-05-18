@@ -128,7 +128,7 @@ export default function SplineButtons({ ...props }) {
     <>
       {/* <Html position={[100, 200, -100]}>
         <div style={{ height: "90vh", width: "25ch", backgroundColor: "#fff" }}>
-          <h1>SIMONE TEGLIA</h1>
+          <h1>SIMONE TEGLIA 2</h1>
         </div>
       </Html> */}
       <color attach="background" args={["#6a7485"]} />
