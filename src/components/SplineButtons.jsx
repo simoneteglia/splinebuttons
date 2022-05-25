@@ -1,21 +1,34 @@
-import React, { useRef, useState, Suspense } from "react";
-import { Canvas, useFrame } from "@react-three/fiber";
+import React, { useRef, useState, Suspense, useEffect } from "react";
+import { Canvas, useFrame, extend } from "@react-three/fiber";
 import useSpline from "@splinetool/r3f-spline";
-import { OrthographicCamera, Html } from "@react-three/drei";
-import { useSpring, animated } from "react-spring";
+import { OrthographicCamera, Html, Plane } from "@react-three/drei";
+
+import "../App.css";
+
 const TWEEN = require("@tweenjs/tween.js");
 
-export default function SplineButtons({ ...props }) {
+export default function SplineButtons({ controlsRef, ...props }) {
+  const [offsetX, setOffsetX] = useState(0);
+  const [offsetY, setOffsetY] = useState(0);
+
   const { nodes, materials } = useSpline(
     "https://prod.spline.design/M0UU4nLHTsR9z4CY/scene.splinecode"
   );
+
+  useEffect(() => {
+    window.addEventListener("mousemove", (e) => handleMouseMove(e));
+  }, []);
+
+  function handleMouseMove(e) {
+    setOffsetX(e.clientX - window.innerWidth / 2);
+    setOffsetY(e.clientY - window.innerHeight / 2);
+  }
 
   useFrame(() => TWEEN.update());
 
   const squareMeshRef = useRef();
   const triangleMeshRef = useRef();
   const circleMeshref = useRef();
-  const crossMeshRef = useRef();
 
   const squareRef = useRef();
   const triangleRef = useRef();
@@ -23,9 +36,11 @@ export default function SplineButtons({ ...props }) {
   const crossRef = useRef();
 
   const buttonsRef = useRef();
+  const htmlRef = useRef();
+  const planeMaterialRef = useRef();
+  const cameraRef = useRef();
 
   function handleOnClickSquare() {
-    console.log("square");
     const tweenDown = new TWEEN.Tween(squareMeshRef.current.position)
       .to({ y: -15.0 }, 500)
       .easing(TWEEN.Easing.Quadratic.InOut)
@@ -58,10 +73,14 @@ export default function SplineButtons({ ...props }) {
       )
       .easing(TWEEN.Easing.Quadratic.InOut)
       .start();
+
+    htmlRef.current.style.right =
+      htmlRef.current.style.right === "50px" ? "-2000px" : "50px";
   }
 
   function handleOnClickTriangle() {
     console.log("triangle");
+
     const tweenDown = new TWEEN.Tween(triangleMeshRef.current.position)
       .to({ y: -15.0 }, 500)
       .easing(TWEEN.Easing.Quadratic.InOut)
@@ -86,7 +105,6 @@ export default function SplineButtons({ ...props }) {
   }
 
   function handleOnClickCross() {
-    console.log("cross");
     const tweenDown = new TWEEN.Tween(crossRef.current.position)
       .to({ y: 1.84 }, 500)
       .easing(TWEEN.Easing.Quadratic.InOut)
@@ -124,23 +142,49 @@ export default function SplineButtons({ ...props }) {
       .start();
   }
 
+  useEffect(() => {
+    console.log(buttonsRef.current);
+    buttonsRef.current.position.z = offsetX * 0.02;
+    buttonsRef.current.position.x = offsetY * 0.02;
+  }, [offsetX, offsetY]);
+
   return (
     <>
-      {/* <Html position={[100, 200, -100]}>
-        <div style={{ height: "90vh", width: "25ch", backgroundColor: "#fff" }}>
-          <h1>SIMONE TEGLIA 2</h1>
+      <Html fullscreen style={{ position: "relative" }}>
+        <div
+          ref={htmlRef}
+          className="whoami-panel"
+          style={{
+            fontFamily: "Bugaki",
+            fontSize: "30px",
+            position: "absolute",
+            right: -2000,
+            top: 20,
+            transition: "all 0.5s ease-in-out",
+            maxWidth: "25ch",
+            color: "cornsilk",
+          }}
+        >
+          <h1>SIMONE TEGLIA</h1>
+          <p>
+            Lorem ipsum dolor sit amet, consectetur adipisicing elit. Officia
+            labore obcaecati blanditiis similique iste odio exercitationem sunt
+            eligendi incidunt, dicta harum nisi rerum, aliquid tempora.
+          </p>
         </div>
-      </Html> */}
-      <color attach="background" args={["#6a7485"]} />
+      </Html>
       <group {...props} dispose={null}>
-        <mesh
-          name="Plane"
-          geometry={nodes.Plane.geometry}
-          material={materials["Plane Material"]}
-          receiveShadow
-          position={[629.5, -109.35, 536.5]}
+        <Plane
+          args={[1500, 1500]}
           rotation={[-Math.PI / 2, 0, 0]}
-        />
+          position={[0, -50, 0]}
+          receiveShadow
+        >
+          <meshPhongMaterial
+            ref={planeMaterialRef}
+            color={"rgb(101, 105, 152)"}
+          />
+        </Plane>
         <pointLight
           name="Point Light 2"
           castShadow
@@ -325,6 +369,7 @@ export default function SplineButtons({ ...props }) {
           position={[200, 300, 300]}
         />
         <OrthographicCamera
+          ref={cameraRef}
           name="Personal Camera"
           makeDefault={true}
           zoom={8}
@@ -334,7 +379,7 @@ export default function SplineButtons({ ...props }) {
           bottom={window.innerHeight * -2}
           far={100000}
           near={-100000}
-          position={[1000, 1000, 1000]}
+          position={[500, 500, 500]}
           rotation={[-Math.PI / 4, 0.62, Math.PI / 6]}
         />
         <hemisphereLight
