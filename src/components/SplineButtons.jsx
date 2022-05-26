@@ -48,6 +48,11 @@ export default function SplineButtons({ controlsRef, ...props }) {
   const cameraRef = useRef();
 
   function handleOnClickSquare() {
+    setSquare(!square);
+    setTriangle(false);
+    setCircle(false);
+    setCross(false);
+
     const tweenDown = new TWEEN.Tween(squareMeshRef.current.position)
       .to({ y: -15.0 }, 500)
       .easing(TWEEN.Easing.Quadratic.InOut)
@@ -71,8 +76,7 @@ export default function SplineButtons({ controlsRef, ...props }) {
       .start();
 
     const tweenRotation = new TWEEN.Tween(buttonsRef.current.rotation)
-      .to({ y: square ? 0 : Math.PI / 2 }, 500)
-      .onComplete(() => setSquare(!square))
+      .to({ y: !square ? Math.PI / 2 : 0 }, 500)
       .easing(TWEEN.Easing.Quadratic.InOut)
       .start();
 
@@ -83,32 +87,34 @@ export default function SplineButtons({ controlsRef, ...props }) {
       value: zoom.value === 5.5 ? 2 : 5.5,
     };
 
-    const tweenCamera = new TWEEN.Tween(zoom)
+    const tweenZoom = new TWEEN.Tween(zoom)
       .to({ value: zoomTarget.value }, 500)
       .onUpdate(function () {
         cameraRef.current.zoom = zoom.value;
         cameraRef.current.updateProjectionMatrix();
       })
-      .easing(TWEEN.Easing.Quadratic.InOut)
-      .start();
+      .easing(TWEEN.Easing.Quadratic.InOut);
 
-    const buttonTween = new TWEEN.Tween(buttonsRef.current.position)
+    if (circle || triangle || cross) {
+    } else tweenZoom.start();
+
+    const tweenPosition = new TWEEN.Tween(buttonsRef.current.position)
       .to(
         {
-          x: buttonsRef.current.position.x == 0 ? -100 : 0,
-          z: buttonsRef.current.position.z == 0 ? 100 : 0,
+          x: !square ? -100 : 0,
+          z: !square ? 100 : 0,
         },
         500
       )
       .easing(TWEEN.Easing.Quadratic.InOut)
       .start();
-
-    htmlRef.current.style.right =
-      htmlRef.current.style.right === "50px" ? "-2000px" : "50px";
   }
 
   function handleOnClickTriangle() {
-    console.log("triangle");
+    setTriangle(!triangle);
+    setSquare(false);
+    setCircle(false);
+    setCross(false);
 
     const tweenDown = new TWEEN.Tween(triangleMeshRef.current.position)
       .to({ y: -15.0 }, 500)
@@ -133,12 +139,45 @@ export default function SplineButtons({ controlsRef, ...props }) {
       .start();
 
     const tweenRotation = new TWEEN.Tween(buttonsRef.current.rotation)
-      .to({ y: buttonsRef.current.rotation.y === 0 ? -Math.PI : 0 }, 500)
+      .to({ y: !triangle ? -Math.PI : 0 }, 500)
+      .easing(TWEEN.Easing.Quadratic.InOut)
+      .start();
+
+    var zoom = {
+      value: cameraRef.current.zoom,
+    };
+    var zoomTarget = {
+      value: zoom.value === 5.5 ? 2 : 5.5,
+    };
+
+    const tweenZoom = new TWEEN.Tween(zoom)
+      .to({ value: zoomTarget.value }, 500)
+      .onUpdate(function () {
+        cameraRef.current.zoom = zoom.value;
+        cameraRef.current.updateProjectionMatrix();
+      })
+      .easing(TWEEN.Easing.Quadratic.InOut);
+
+    if (square || circle || cross) {
+    } else tweenZoom.start();
+
+    const tweenPosition = new TWEEN.Tween(buttonsRef.current.position)
+      .to(
+        {
+          x: !triangle ? -100 : 0,
+          z: !triangle ? 100 : 0,
+        },
+        500
+      )
       .easing(TWEEN.Easing.Quadratic.InOut)
       .start();
   }
 
   function handleOnClickCross() {
+    setCross(!cross);
+    setTriangle(false);
+    setSquare(false);
+    setCircle(false);
     const tweenDown = new TWEEN.Tween(crossRef.current.position)
       .to({ y: 1.84 }, 500)
       .easing(TWEEN.Easing.Quadratic.InOut)
@@ -149,10 +188,49 @@ export default function SplineButtons({ controlsRef, ...props }) {
           .start();
       })
       .start();
+
+    const tweenRotation = new TWEEN.Tween(buttonsRef.current.rotation)
+      .to({ y: 0 }, 500)
+      .easing(TWEEN.Easing.Quadratic.InOut)
+      .start();
+
+    var zoom = {
+      value: cameraRef.current.zoom,
+    };
+    var zoomTarget = {
+      value: zoom.value === 5.5 ? 2 : 5.5,
+    };
+
+    const tweenZoom = new TWEEN.Tween(zoom)
+      .to({ value: zoomTarget.value }, 500)
+      .onUpdate(function () {
+        cameraRef.current.zoom = zoom.value;
+        cameraRef.current.updateProjectionMatrix();
+      })
+      .easing(TWEEN.Easing.Quadratic.InOut);
+
+    if (circle || triangle || square) {
+    } else tweenZoom.start();
+
+    const tweenPosition = new TWEEN.Tween(buttonsRef.current.position)
+      .to(
+        {
+          x: !cross ? -100 : 0,
+          z: !cross ? 100 : 0,
+        },
+        500
+      )
+      .easing(TWEEN.Easing.Quadratic.InOut)
+      .start();
   }
 
   function handleOnClickCircle() {
     console.log("circle");
+    setCircle(!circle);
+    setSquare(false);
+    setTriangle(false);
+    setCross(false);
+
     const tweenDown = new TWEEN.Tween(circleMeshref.current.position)
       .to({ y: -15.0 }, 500)
       .easing(TWEEN.Easing.Quadratic.InOut)
@@ -174,6 +252,40 @@ export default function SplineButtons({ controlsRef, ...props }) {
           .start();
       })
       .start();
+
+    const tweenRotation = new TWEEN.Tween(buttonsRef.current.rotation)
+      .to({ y: !circle ? -Math.PI / 2 : 0 }, 500)
+      .easing(TWEEN.Easing.Quadratic.InOut)
+      .start();
+
+    var zoom = {
+      value: cameraRef.current.zoom,
+    };
+    var zoomTarget = {
+      value: zoom.value === 5.5 ? 2 : 5.5,
+    };
+
+    const tweenZoom = new TWEEN.Tween(zoom)
+      .to({ value: zoomTarget.value }, 500)
+      .onUpdate(function () {
+        cameraRef.current.zoom = zoom.value;
+        cameraRef.current.updateProjectionMatrix();
+      })
+      .easing(TWEEN.Easing.Quadratic.InOut);
+
+    if (square || triangle || cross) {
+    } else tweenZoom.start();
+
+    const tweenPosition = new TWEEN.Tween(buttonsRef.current.position)
+      .to(
+        {
+          x: !circle ? -100 : 0,
+          z: !circle ? 100 : 0,
+        },
+        500
+      )
+      .easing(TWEEN.Easing.Quadratic.InOut)
+      .start();
   }
 
   return (
@@ -186,7 +298,7 @@ export default function SplineButtons({ controlsRef, ...props }) {
             fontFamily: "Bugaki",
             fontSize: "30px",
             position: "absolute",
-            right: -2000,
+            right: square ? 50 : -2000,
             top: 20,
             transition: "all 0.5s ease-in-out",
             maxWidth: "25ch",
@@ -199,6 +311,12 @@ export default function SplineButtons({ controlsRef, ...props }) {
             labore obcaecati blanditiis similique iste odio exercitationem sunt
             eligendi incidunt, dicta harum nisi rerum, aliquid tempora.
           </p>
+        </div>
+        <div style={{ position: "absolute", left: 50, top: 50, color: "#fff" }}>
+          <h1>Square = {square ? "true" : "false"}</h1>
+          <h1>Circle = {circle ? "true" : "false"}</h1>
+          <h1>Triangle = {triangle ? "true" : "false"}</h1>
+          <h1>Cross = {cross ? "true" : "false"}</h1>
         </div>
       </Html>
       <group {...props} dispose={null}>
