@@ -8,23 +8,30 @@ import "../App.css";
 const TWEEN = require("@tweenjs/tween.js");
 
 export default function SplineButtons({ controlsRef, ...props }) {
-  const [offsetX, setOffsetX] = useState(0);
-  const [offsetY, setOffsetY] = useState(0);
+  const [width, setWidth] = useState(window.innerWidth);
+  const [height, setHeight] = useState(window.innerHeight);
+  const [square, setSquare] = useState(false);
+  const [triangle, setTriangle] = useState(false);
+  const [circle, setCircle] = useState(false);
+  const [cross, setCross] = useState(false);
 
   const { nodes, materials } = useSpline(
     "https://prod.spline.design/M0UU4nLHTsR9z4CY/scene.splinecode"
   );
 
   useEffect(() => {
-    window.addEventListener("mousemove", (e) => handleMouseMove(e));
+    window.addEventListener("resize", (e) => handleResize(e));
   }, []);
 
-  function handleMouseMove(e) {
-    setOffsetX(e.clientX - window.innerWidth / 2);
-    setOffsetY(e.clientY - window.innerHeight / 2);
+  function handleResize(e) {
+    setWidth(window.innerWidth);
+    setHeight(window.innerHeight);
+    cameraRef.current.updateProjectionMatrix();
   }
 
-  useFrame(() => TWEEN.update());
+  useFrame(() => {
+    TWEEN.update();
+  });
 
   const squareMeshRef = useRef();
   const triangleMeshRef = useRef();
@@ -61,6 +68,28 @@ export default function SplineButtons({ controlsRef, ...props }) {
           .easing(TWEEN.Easing.Quadratic.InOut)
           .start();
       })
+      .start();
+
+    const tweenRotation = new TWEEN.Tween(buttonsRef.current.rotation)
+      .to({ y: square ? 0 : Math.PI / 2 }, 500)
+      .onComplete(() => setSquare(!square))
+      .easing(TWEEN.Easing.Quadratic.InOut)
+      .start();
+
+    var zoom = {
+      value: cameraRef.current.zoom,
+    };
+    var zoomTarget = {
+      value: zoom.value === 5.5 ? 2 : 5.5,
+    };
+
+    const tweenCamera = new TWEEN.Tween(zoom)
+      .to({ value: zoomTarget.value }, 500)
+      .onUpdate(function () {
+        cameraRef.current.zoom = zoom.value;
+        cameraRef.current.updateProjectionMatrix();
+      })
+      .easing(TWEEN.Easing.Quadratic.InOut)
       .start();
 
     const buttonTween = new TWEEN.Tween(buttonsRef.current.position)
@@ -102,6 +131,11 @@ export default function SplineButtons({ controlsRef, ...props }) {
           .start();
       })
       .start();
+
+    const tweenRotation = new TWEEN.Tween(buttonsRef.current.rotation)
+      .to({ y: buttonsRef.current.rotation.y === 0 ? -Math.PI : 0 }, 500)
+      .easing(TWEEN.Easing.Quadratic.InOut)
+      .start();
   }
 
   function handleOnClickCross() {
@@ -141,12 +175,6 @@ export default function SplineButtons({ controlsRef, ...props }) {
       })
       .start();
   }
-
-  useEffect(() => {
-    console.log(buttonsRef.current);
-    buttonsRef.current.position.z = offsetX * 0.02;
-    buttonsRef.current.position.x = offsetY * 0.02;
-  }, [offsetX, offsetY]);
 
   return (
     <>
@@ -372,15 +400,10 @@ export default function SplineButtons({ controlsRef, ...props }) {
           ref={cameraRef}
           name="Personal Camera"
           makeDefault={true}
-          zoom={8}
-          left={window.innerWidth * -2}
-          right={window.innerWidth * 2}
-          top={window.innerHeight * 2}
-          bottom={window.innerHeight * -2}
+          zoom={2}
           far={100000}
           near={-100000}
-          position={[500, 500, 500]}
-          rotation={[-Math.PI / 4, 0.62, Math.PI / 6]}
+          position={[300, 300, 300]}
         />
         <hemisphereLight
           name="Default Ambient Light"
