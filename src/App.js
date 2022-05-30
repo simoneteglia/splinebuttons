@@ -14,6 +14,7 @@ function App() {
         <Canvas shadows flat linear>
           <OrbitControls ref={controlsRef} />
           <SplineButtons controlsRef={controlsRef} />
+          {/* <Landing /> */}
         </Canvas>
       </Suspense>
     </div>

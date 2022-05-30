@@ -1,7 +1,13 @@
 import React, { useRef, useState, Suspense, useEffect } from "react";
-import { Canvas, useFrame, extend } from "@react-three/fiber";
+import { Canvas, useFrame } from "@react-three/fiber";
 import useSpline from "@splinetool/r3f-spline";
-import { OrthographicCamera, Html, Plane } from "@react-three/drei";
+import {
+  OrthographicCamera,
+  Html,
+  Plane,
+  useGLTF,
+  ContactShadows,
+} from "@react-three/drei";
 
 import "../App.css";
 
@@ -29,8 +35,9 @@ export default function SplineButtons({ controlsRef, ...props }) {
     cameraRef.current.updateProjectionMatrix();
   }
 
-  useFrame(() => {
+  useFrame((e) => {
     TWEEN.update();
+    coinRef.current.position.y += Math.sin(e.clock.elapsedTime * 2) * 0.2;
   });
 
   const squareMeshRef = useRef();
@@ -43,9 +50,9 @@ export default function SplineButtons({ controlsRef, ...props }) {
   const crossRef = useRef();
 
   const buttonsRef = useRef();
-  const htmlRef = useRef();
   const planeMaterialRef = useRef();
   const cameraRef = useRef();
+  const coinRef = useRef();
 
   function handleOnClickSquare() {
     setSquare(!square);
@@ -242,16 +249,16 @@ export default function SplineButtons({ controlsRef, ...props }) {
       })
       .start();
 
-    const tweenDownIcon = new TWEEN.Tween(circleRef.current.position)
-      .to({ y: 11.2 }, 500)
-      .easing(TWEEN.Easing.Quadratic.InOut)
-      .onComplete(() => {
-        const tweenUpIcon = new TWEEN.Tween(circleRef.current.position)
-          .to({ y: 17.35 }, 500)
-          .easing(TWEEN.Easing.Quadratic.InOut)
-          .start();
-      })
-      .start();
+    // const tweenDownIcon = new TWEEN.Tween(circleRef.current.position)
+    //   .to({ y: 11.2 }, 500)
+    //   .easing(TWEEN.Easing.Quadratic.InOut)
+    //   .onComplete(() => {
+    //     const tweenUpIcon = new TWEEN.Tween(circleRef.current.position)
+    //       .to({ y: 17.35 }, 500)
+    //       .easing(TWEEN.Easing.Quadratic.InOut)
+    //       .start();
+    //   })
+    //   .start();
 
     const tweenRotation = new TWEEN.Tween(buttonsRef.current.rotation)
       .to({ y: !circle ? -Math.PI / 2 : 0 }, 500)
@@ -288,11 +295,17 @@ export default function SplineButtons({ controlsRef, ...props }) {
       .start();
   }
 
+  function Coin(props) {
+    const { scene } = useGLTF(
+      "https://vazxmixjsiawhamofees.supabase.co/storage/v1/object/public/models/coin/model.gltf"
+    );
+    return <primitive object={scene} {...props} ref={coinRef} />;
+  }
+
   return (
     <>
       <Html fullscreen style={{ position: "relative" }}>
         <div
-          ref={htmlRef}
           className="whoami-panel"
           style={{
             fontFamily: "Bugaki",
@@ -312,11 +325,25 @@ export default function SplineButtons({ controlsRef, ...props }) {
             eligendi incidunt, dicta harum nisi rerum, aliquid tempora.
           </p>
         </div>
-        <div style={{ position: "absolute", left: 50, top: 50, color: "#fff" }}>
-          <h1>Square = {square ? "true" : "false"}</h1>
-          <h1>Circle = {circle ? "true" : "false"}</h1>
-          <h1>Triangle = {triangle ? "true" : "false"}</h1>
-          <h1>Cross = {cross ? "true" : "false"}</h1>
+        <div
+          className="whoami-panel"
+          style={{
+            fontFamily: "Bugaki",
+            fontSize: "30px",
+            position: "absolute",
+            right: cross ? 50 : -2000,
+            top: 20,
+            transition: "all 0.5s ease-in-out",
+            maxWidth: "25ch",
+            color: "cornsilk",
+          }}
+        >
+          <h1>CONTACT ME</h1>
+          <p>
+            Lorem ipsum dolor sit amet, consectetur adipisicing elit. Officia
+            labore obcaecati blanditiis similique iste odio exercitationem sunt
+            eligendi incidunt, dicta harum nisi rerum, aliquid tempora.
+          </p>
         </div>
       </Html>
       <group {...props} dispose={null}>
@@ -454,7 +481,7 @@ export default function SplineButtons({ controlsRef, ...props }) {
             position={[-50, 0.65, -50]}
             onClick={handleOnClickCircle}
           >
-            <mesh
+            {/* <mesh
               ref={circleRef}
               name="Ellipse"
               geometry={nodes.Ellipse.geometry}
@@ -463,6 +490,14 @@ export default function SplineButtons({ controlsRef, ...props }) {
               receiveShadow
               position={[0, 17.35, 0]}
               rotation={[-Math.PI / 2, 0, 0]}
+            /> */}
+            <Coin position={[0, 50, 0]} scale={40} />
+            <ContactShadows
+              position={[0, 28, 0]}
+              opacity={1}
+              scale={50}
+              blur={0}
+              far={0.8}
             />
             <mesh
               ref={circleMeshref}
