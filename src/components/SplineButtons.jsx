@@ -260,6 +260,16 @@ export default function SplineButtons({ controlsRef, ...props }) {
     //   })
     //   .start();
 
+    const tweenAnimateCoin = new TWEEN.Tween(coinRef.current.rotation)
+      .to(
+        {
+          y: coinRef.current.rotation.y === 0 ? 5 * Math.PI : 0,
+        },
+        500
+      )
+      .easing(TWEEN.Easing.Quadratic.InOut)
+      .start();
+
     const tweenRotation = new TWEEN.Tween(buttonsRef.current.rotation)
       .to({ y: !circle ? -Math.PI / 2 : 0 }, 500)
       .easing(TWEEN.Easing.Quadratic.InOut)
