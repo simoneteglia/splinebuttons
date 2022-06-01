@@ -7,6 +7,7 @@ import {
   Plane,
   useGLTF,
   ContactShadows,
+  useTexture,
 } from "@react-three/drei";
 
 import "../App.css";
@@ -37,7 +38,16 @@ export default function SplineButtons({ controlsRef, ...props }) {
 
   useFrame((e) => {
     TWEEN.update();
-    coinRef.current.position.y += Math.sin(e.clock.elapsedTime * 2) * 0.2;
+    coinRef.current.position.y += Math.sin(e.clock.elapsedTime * 2) * 0.1;
+    heartRef.current.position.y -= Math.sin(e.clock.elapsedTime * 3) * 0.2;
+    starRef.current.position.y -= Math.sin(e.clock.elapsedTime * 3) * 0.2;
+    ballRef.current.position.y += Math.sin(e.clock.elapsedTime * 3) * 0.2;
+    heartRef.current.rotation.y += 0.01;
+    starRef.current.rotation.y += 0.01;
+    coinRef.current.rotation.y += 0.01;
+    coinRef.current.rotation.x += 0.01;
+    ballRef.current.rotation.y += 0.005;
+    ballRef.current.rotation.x += 0.005;
   });
 
   const squareMeshRef = useRef();
@@ -53,6 +63,9 @@ export default function SplineButtons({ controlsRef, ...props }) {
   const planeMaterialRef = useRef();
   const cameraRef = useRef();
   const coinRef = useRef();
+  const heartRef = useRef();
+  const starRef = useRef();
+  const ballRef = useRef();
 
   function handleOnClickSquare() {
     setSquare(!square);
@@ -71,16 +84,16 @@ export default function SplineButtons({ controlsRef, ...props }) {
       })
       .start();
 
-    const tweenDownIcon = new TWEEN.Tween(squareRef.current.position)
-      .to({ y: 11.2 }, 500)
-      .easing(TWEEN.Easing.Quadratic.InOut)
-      .onComplete(() => {
-        const tweenUpIcon = new TWEEN.Tween(squareRef.current.position)
-          .to({ y: 17.35 }, 500)
-          .easing(TWEEN.Easing.Quadratic.InOut)
-          .start();
-      })
-      .start();
+    // const tweenDownIcon = new TWEEN.Tween(squareRef.current.position)
+    //   .to({ y: 11.2 }, 500)
+    //   .easing(TWEEN.Easing.Quadratic.InOut)
+    //   .onComplete(() => {
+    //     const tweenUpIcon = new TWEEN.Tween(squareRef.current.position)
+    //       .to({ y: 17.35 }, 500)
+    //       .easing(TWEEN.Easing.Quadratic.InOut)
+    //       .start();
+    //   })
+    //   .start();
 
     const tweenRotation = new TWEEN.Tween(buttonsRef.current.rotation)
       .to({ y: !square ? Math.PI / 2 : 0 }, 500)
@@ -108,8 +121,8 @@ export default function SplineButtons({ controlsRef, ...props }) {
     const tweenPosition = new TWEEN.Tween(buttonsRef.current.position)
       .to(
         {
-          x: !square ? -100 : 0,
-          z: !square ? 100 : 0,
+          x: !square ? -90 : 0,
+          z: !square ? 120 : 0,
         },
         500
       )
@@ -134,16 +147,16 @@ export default function SplineButtons({ controlsRef, ...props }) {
       })
       .start();
 
-    const tweenDownIcon = new TWEEN.Tween(triangleRef.current.position)
-      .to({ y: 11.2 }, 500)
-      .easing(TWEEN.Easing.Quadratic.InOut)
-      .onComplete(() => {
-        const tweenUpIcon = new TWEEN.Tween(triangleRef.current.position)
-          .to({ y: 17.35 }, 500)
-          .easing(TWEEN.Easing.Quadratic.InOut)
-          .start();
-      })
-      .start();
+    // const tweenDownIcon = new TWEEN.Tween(triangleRef.current.position)
+    //   .to({ y: 11.2 }, 500)
+    //   .easing(TWEEN.Easing.Quadratic.InOut)
+    //   .onComplete(() => {
+    //     const tweenUpIcon = new TWEEN.Tween(triangleRef.current.position)
+    //       .to({ y: 17.35 }, 500)
+    //       .easing(TWEEN.Easing.Quadratic.InOut)
+    //       .start();
+    //   })
+    //   .start();
 
     const tweenRotation = new TWEEN.Tween(buttonsRef.current.rotation)
       .to({ y: !triangle ? -Math.PI : 0 }, 500)
@@ -260,13 +273,19 @@ export default function SplineButtons({ controlsRef, ...props }) {
     //   })
     //   .start();
 
-    const tweenAnimateCoin = new TWEEN.Tween(coinRef.current.rotation)
+    const tweenAnimateRotationCoin = new TWEEN.Tween(coinRef.current.rotation)
       .to(
         {
           y: coinRef.current.rotation.y === 0 ? 5 * Math.PI : 0,
         },
         500
       )
+      .easing(TWEEN.Easing.Quadratic.InOut)
+      .start();
+
+    const tweenAnimatePositionCoin = new TWEEN.Tween(coinRef.current.position)
+      .to({ y: 60 }, 500)
+
       .easing(TWEEN.Easing.Quadratic.InOut)
       .start();
 
@@ -296,8 +315,8 @@ export default function SplineButtons({ controlsRef, ...props }) {
     const tweenPosition = new TWEEN.Tween(buttonsRef.current.position)
       .to(
         {
-          x: !circle ? -100 : 0,
-          z: !circle ? 100 : 0,
+          x: !circle ? -90 : 0,
+          z: !circle ? 120 : 0,
         },
         500
       )
@@ -310,6 +329,28 @@ export default function SplineButtons({ controlsRef, ...props }) {
       "https://vazxmixjsiawhamofees.supabase.co/storage/v1/object/public/models/coin/model.gltf"
     );
     return <primitive object={scene} {...props} ref={coinRef} />;
+  }
+
+  function Heart(props) {
+    const gltf = useGLTF(
+      "https://vazxmixjsiawhamofees.supabase.co/storage/v1/object/public/models/heart/model.gltf"
+    );
+    console.log(gltf);
+    return <primitive object={gltf.scene} {...props} ref={heartRef} />;
+  }
+
+  function Star(props) {
+    const { scene } = useGLTF(
+      "https://vazxmixjsiawhamofees.supabase.co/storage/v1/object/public/models/star/model.gltf"
+    );
+    return <primitive object={scene} {...props} ref={starRef} />;
+  }
+
+  function Ball(props) {
+    const { scene } = useGLTF(
+      "https://vazxmixjsiawhamofees.supabase.co/storage/v1/object/public/models/beach-ball/model.gltf"
+    );
+    return <primitive object={scene} {...props} ref={ballRef} />;
   }
 
   return (
@@ -429,7 +470,7 @@ export default function SplineButtons({ controlsRef, ...props }) {
             position={[50, 0.65, 50]}
             onClick={handleOnClickSquare}
           >
-            <mesh
+            {/* <mesh
               ref={squareRef}
               name="Ellipse 3"
               geometry={nodes["Ellipse 3"].geometry}
@@ -438,7 +479,8 @@ export default function SplineButtons({ controlsRef, ...props }) {
               receiveShadow
               position={[0, 17.35, 0]}
               rotation={[-Math.PI / 2, 0, Math.PI / 4]}
-            />
+            /> */}
+            <Star position={[0, 50, 0]} scale={40} />
             <mesh
               ref={squareMeshRef}
               name="Cube 21"
@@ -455,7 +497,7 @@ export default function SplineButtons({ controlsRef, ...props }) {
             position={[50, 7.99, -50]}
             onClick={handleOnClickCross}
           >
-            <group
+            {/* <group
               name="Group 2"
               position={[0, 9.85, 0]}
               rotation={[0, Math.PI / 4, 0]}
@@ -476,7 +518,8 @@ export default function SplineButtons({ controlsRef, ...props }) {
                 receiveShadow
                 rotation={[-Math.PI / 2, 0, 0]}
               />
-            </group>
+            </group> */}
+            <Ball position={[0, 50, 0]} scale={20} />
             <mesh
               name="Cube 3"
               geometry={nodes["Cube 3"].geometry}
@@ -502,13 +545,6 @@ export default function SplineButtons({ controlsRef, ...props }) {
               rotation={[-Math.PI / 2, 0, 0]}
             /> */}
             <Coin position={[0, 50, 0]} scale={40} />
-            <ContactShadows
-              position={[0, 28, 0]}
-              opacity={1}
-              scale={50}
-              blur={0}
-              far={0.8}
-            />
             <mesh
               ref={circleMeshref}
               name="Cube 31"
@@ -525,16 +561,6 @@ export default function SplineButtons({ controlsRef, ...props }) {
             onClick={handleOnClickTriangle}
           >
             <mesh
-              ref={triangleRef}
-              name="Ellipse 2"
-              geometry={nodes["Ellipse 2"].geometry}
-              material={materials["Ellipse 2 Material"]}
-              castShadow
-              receiveShadow
-              position={[0, 17.35, 0]}
-              rotation={[-Math.PI / 2, 0, 0]}
-            />
-            <mesh
               ref={triangleMeshRef}
               name="Cube1"
               geometry={nodes.Cube1.geometry}
@@ -543,6 +569,17 @@ export default function SplineButtons({ controlsRef, ...props }) {
               receiveShadow
               position={[0, -8.85, 0]}
             />
+            <Heart position={[0, 50, 0]} scale={40} />
+            {/* <mesh
+              ref={triangleRef}
+              name="Ellipse 2"
+              geometry={nodes["Ellipse 2"].geometry}
+              material={materials["Ellipse 2 Material"]}
+              castShadow
+              receiveShadow
+              position={[0, 17.35, 0]}
+              rotation={[-Math.PI / 2, 0, 0]}
+            /> */}
           </group>
         </group>
         <directionalLight
