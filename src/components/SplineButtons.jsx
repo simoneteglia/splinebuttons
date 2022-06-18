@@ -11,6 +11,7 @@ import {
 } from "@react-three/drei";
 
 import "../App.css";
+import { isLabelWithInternallyDisabledControl } from "@testing-library/user-event/dist/utils";
 
 const TWEEN = require("@tweenjs/tween.js");
 
@@ -21,6 +22,10 @@ export default function SplineButtons({ controlsRef, ...props }) {
   const [triangle, setTriangle] = useState(false);
   const [circle, setCircle] = useState(false);
   const [cross, setCross] = useState(false);
+  const [mouseX, setMouseX] = useState(window.innerHeight / 2);
+  const [mouseY, setMouseY] = useState(window.innerWidth / 2);
+  const [displayWhoAmI, setDisplayWhoAmI] = useState(false);
+  const [displayContactMe, setDisplayContactMe] = useState(false);
 
   const { nodes, materials } = useSpline(
     "https://prod.spline.design/M0UU4nLHTsR9z4CY/scene.splinecode"
@@ -28,6 +33,10 @@ export default function SplineButtons({ controlsRef, ...props }) {
 
   useEffect(() => {
     window.addEventListener("resize", (e) => handleResize(e));
+    window.addEventListener("mousemove", (e) => {
+      setMouseX(e.clientX);
+      setMouseY(e.clientY);
+    });
   }, []);
 
   function handleResize(e) {
@@ -38,10 +47,10 @@ export default function SplineButtons({ controlsRef, ...props }) {
 
   useFrame((e) => {
     TWEEN.update();
-    coinRef.current.position.y += Math.sin(e.clock.elapsedTime * 2) * 0.1;
-    heartRef.current.position.y -= Math.sin(e.clock.elapsedTime * 3) * 0.2;
-    starRef.current.position.y -= Math.sin(e.clock.elapsedTime * 3) * 0.2;
-    ballRef.current.position.y += Math.sin(e.clock.elapsedTime * 3) * 0.2;
+    coinRef.current.position.y = 50 + Math.sin(e.clock.elapsedTime * 2) * 4;
+    heartRef.current.position.y = 50 - Math.sin(e.clock.elapsedTime * 3) * 5;
+    starRef.current.position.y = 50 - Math.sin(e.clock.elapsedTime * 3) * 6;
+    ballRef.current.position.y = 50 + Math.sin(e.clock.elapsedTime * 2) * 4;
     heartRef.current.rotation.y += 0.01;
     starRef.current.rotation.y += 0.01;
     coinRef.current.rotation.y += 0.01;
@@ -324,6 +333,21 @@ export default function SplineButtons({ controlsRef, ...props }) {
       .start();
   }
 
+  function handleOnPointerEnterSquare() {
+    setDisplayWhoAmI(true);
+  }
+
+  function handleOnPointerLeaveSquare() {
+    setDisplayWhoAmI(false);
+  }
+  function handleOnPointerEnterTriangle() {
+    setDisplayContactMe(true);
+  }
+
+  function handleOnPointerLeaveTriangle() {
+    setDisplayContactMe(false);
+  }
+
   function Coin(props) {
     const { scene } = useGLTF(
       "https://vazxmixjsiawhamofees.supabase.co/storage/v1/object/public/models/coin/model.gltf"
@@ -335,7 +359,6 @@ export default function SplineButtons({ controlsRef, ...props }) {
     const gltf = useGLTF(
       "https://vazxmixjsiawhamofees.supabase.co/storage/v1/object/public/models/heart/model.gltf"
     );
-    console.log(gltf);
     return <primitive object={gltf.scene} {...props} ref={heartRef} />;
   }
 
@@ -377,12 +400,12 @@ export default function SplineButtons({ controlsRef, ...props }) {
           </p>
         </div>
         <div
-          className="whoami-panel"
+          className="contact-panel"
           style={{
             fontFamily: "Bugaki",
             fontSize: "30px",
             position: "absolute",
-            right: cross ? 50 : -2000,
+            right: triangle ? 50 : -2000,
             top: 20,
             transition: "all 0.5s ease-in-out",
             maxWidth: "25ch",
@@ -395,6 +418,36 @@ export default function SplineButtons({ controlsRef, ...props }) {
             labore obcaecati blanditiis similique iste odio exercitationem sunt
             eligendi incidunt, dicta harum nisi rerum, aliquid tempora.
           </p>
+        </div>
+        <div
+          style={{
+            fontSize: "50px",
+            color: "cornsilk",
+            fontFamily: "Bugaki",
+            position: "absolute",
+            opacity: displayWhoAmI && !square ? "1" : "0",
+            top: mouseY - 50,
+            left: mouseX,
+            pointerEvents: "none",
+            transition: "opacity 0.2s ease-in-out",
+          }}
+        >
+          <h1>WHOAMI</h1>
+        </div>
+        <div
+          style={{
+            fontSize: "50px",
+            color: "cornsilk",
+            fontFamily: "Bugaki",
+            position: "absolute",
+            opacity: displayContactMe && !triangle ? "1" : "0",
+            top: mouseY - 50,
+            left: mouseX,
+            pointerEvents: "none",
+            transition: "opacity 0.2s ease-in-out",
+          }}
+        >
+          <h1>CONTACT ME</h1>
         </div>
       </Html>
       <group {...props} dispose={null}>
@@ -469,6 +522,8 @@ export default function SplineButtons({ controlsRef, ...props }) {
             name="Square"
             position={[50, 0.65, 50]}
             onClick={handleOnClickSquare}
+            onPointerEnter={handleOnPointerEnterSquare}
+            onPointerLeave={handleOnPointerLeaveSquare}
           >
             {/* <mesh
               ref={squareRef}
@@ -480,7 +535,7 @@ export default function SplineButtons({ controlsRef, ...props }) {
               position={[0, 17.35, 0]}
               rotation={[-Math.PI / 2, 0, Math.PI / 4]}
             /> */}
-            <Star position={[0, 50, 0]} scale={40} />
+            <Star scale={40} />
             <mesh
               ref={squareMeshRef}
               name="Cube 21"
@@ -519,7 +574,7 @@ export default function SplineButtons({ controlsRef, ...props }) {
                 rotation={[-Math.PI / 2, 0, 0]}
               />
             </group> */}
-            <Ball position={[0, 50, 0]} scale={20} />
+            <Ball scale={20} />
             <mesh
               name="Cube 3"
               geometry={nodes["Cube 3"].geometry}
@@ -544,7 +599,7 @@ export default function SplineButtons({ controlsRef, ...props }) {
               position={[0, 17.35, 0]}
               rotation={[-Math.PI / 2, 0, 0]}
             /> */}
-            <Coin position={[0, 50, 0]} scale={40} />
+            <Coin scale={40} />
             <mesh
               ref={circleMeshref}
               name="Cube 31"
@@ -559,6 +614,8 @@ export default function SplineButtons({ controlsRef, ...props }) {
             name="Triangle"
             position={[-50, 0.65, 50]}
             onClick={handleOnClickTriangle}
+            onPointerEnter={handleOnPointerEnterTriangle}
+            onPointerLeave={handleOnPointerLeaveTriangle}
           >
             <mesh
               ref={triangleMeshRef}
@@ -569,7 +626,7 @@ export default function SplineButtons({ controlsRef, ...props }) {
               receiveShadow
               position={[0, -8.85, 0]}
             />
-            <Heart position={[0, 50, 0]} scale={40} />
+            <Heart scale={40} />
             {/* <mesh
               ref={triangleRef}
               name="Ellipse 2"
